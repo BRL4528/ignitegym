@@ -9,8 +9,10 @@ import { AppNavigatorRoutesProps } from '@routes/app.routes';
 import { api } from '@services/api';
 import { AppError } from '@utils/AppError';
 import { ExerciseDTO } from '@dtos/ExercicesDTO';
+import { Loading } from '@components/Loading';
 
 export function Home() {
+  const [isLoading, setIsLoading] = useState(true);
   const [groups, setGroups] = useState<string[]>([]);
   const [exercises, setExercises] = useState<ExerciseDTO[]>([]);
   const [groupSelected, setGroupSelected] = useState('costas');
@@ -24,6 +26,7 @@ export function Home() {
 
   async function fetchExercicesByGroup() {
     try {
+      setIsLoading(true)
       api.get(`/exercises/bygroup/${groupSelected}`).then((response) => {
         setExercises(response.data);
       });
@@ -38,6 +41,8 @@ export function Home() {
         placement: 'top',
         bgColor: 'red.500',
       });
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -89,8 +94,8 @@ export function Home() {
         maxH={10}
         minH={10}
       />
-
-      <VStack flex={1} px={8}>
+      { isLoading ? <Loading /> : ( 
+        <VStack flex={1} px={8}>
         <HStack justifyContent="space-between" mb={5}>
           <Heading color="gray.200" fontSize="md" fontFamily="heading">
             Exercícios
@@ -111,6 +116,8 @@ export function Home() {
           _contentContainerStyle={{ paddingBottom: 20 }}
         />
       </VStack>
+      )
+      }
     </VStack>
   );
 }
